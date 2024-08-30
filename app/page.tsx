@@ -1,95 +1,58 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { Divider, Heading, VStack } from "@chakra-ui/react";
+import { Fragment } from "react";
+import { z } from "zod";
+import { Pagination } from "@/app/components/Pagination";
 
-export default function Home() {
+const postsSchema = z.object({
+  id: z.number(),
+  user_id: z.number(),
+  title: z.string(),
+  body: z.string(),
+});
+
+const reqHeaders = new Headers({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+});
+
+export default async function Posts({
+  searchParams,
+}: {
+  searchParams?: { page?: string; per_page?: string };
+}) {
+  const currentPage = Number(searchParams?.page) || 1;
+  const noOfRowsPerPage = Number(searchParams?.per_page) || 10;
+  const res = await fetch(
+    `${process.env.BASE_URL}/posts?page=${currentPage}&per_page=${noOfRowsPerPage}`,
+    { headers: reqHeaders }
+  );
+  const allPosts = z.array(postsSchema).parse(await res.json());
+  const headers = res.headers;
+  const meta = {
+    limit: headers.get("x-pagination-limit") || 10,
+    page: headers.get("x-pagination-page") || 1,
+    pages: headers.get("x-pagination-pages") || 1,
+    total: headers.get("x-pagination-total") || 0,
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <VStack spacing="24px" alignItems="flex-start">
+      <Heading>My Feed</Heading>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      {allPosts.map((post) => (
+        <Fragment key={post.id}>
+          <VStack spacing="24px" alignItems="flex-start">
+            <Heading size="sm">
+              {post.title} - <small>By {post.user_id}</small>
+            </Heading>
+            <p>{post.body}</p>
+          </VStack>
+          <Divider />
+        </Fragment>
+      ))}
+      <Pagination meta={meta} />
+      <br />
+      <br />
+    </VStack>
   );
 }

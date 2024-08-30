@@ -1,0 +1,48 @@
+@BASE_URL=https://gorest.co.in/public/v2
+@ACCESS_TOKEN=c7da5719a07b3e0c9d1eed7e5e878f75bdd1e9c5a1709757862fe204180126ba
+
+GET {{BASE_URL}}/users?page=1&per_page=10
+Content-Type: application/json
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+###
+
+POST {{BASE_URL}}/users
+Content-Type: application/json
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+{
+    "name": "Abhay Kumar",
+    "email": "abhayk@gtest.com",
+    "gender": "male",
+    "status": "active"
+}
+
+// 7372225
+
+###
+
+GET {{BASE_URL}}/users/7372379
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+
+###
+
+DELETE {{BASE_URL}}/users/7372376
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+###
+
+POST {{BASE_URL}}/users/7372580/posts
+Content-Type: application/json
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+{
+    "title": "gh",
+    "body": "a"
+}
+
+###
+
+GET {{BASE_URL}}/users/7372580/posts
+Authorization: Bearer {{ACCESS_TOKEN}}

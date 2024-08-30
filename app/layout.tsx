@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { fonts } from "./fonts";
+import { Providers } from "./providers";
+import { Container, HStack, VStack } from "@chakra-ui/react";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,8 +19,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className={fonts.rubik.variable}>
+      <body className={inter.className}>
+        <Providers>
+          <Container maxW="container.xl">
+            <HStack spacing="16px" as="nav">
+              <Link href="/">Feed</Link>
+              <Link href="/users">Users</Link>
+            </HStack>
+            <VStack spacing="24px" alignItems="flex-start">
+              {children}
+            </VStack>
+          </Container>
+        </Providers>
+      </body>
     </html>
   );
 }
